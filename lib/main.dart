@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'register.dart';
+import 'foodlist.dart';
 
 void main() {
   runApp(MaterialApp(home: LoginPage(), debugShowCheckedModeBanner: false));
@@ -35,6 +37,23 @@ class LoginBody extends StatefulWidget {
 class _LoginBodyState extends State<LoginBody> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
+  void login() {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Please fill in all fields")));
+    } else {
+      // Navigate to FoodListPage after login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => FoodListPage()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +116,7 @@ class _LoginBodyState extends State<LoginBody> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: null,
+                    onPressed: login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 5, 132, 20),
                       padding: const EdgeInsets.symmetric(vertical: 15),
@@ -119,7 +138,12 @@ class _LoginBodyState extends State<LoginBody> {
 
                 // Register Text
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterPage()),
+                    );
+                  },
                   child: Text("Don't have an account? Register"),
                 ),
               ],
