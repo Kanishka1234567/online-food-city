@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'foodlist.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,6 +13,36 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
+
+  void register() {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    if (name.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Please fill all fields")));
+    } else if (password != confirmPassword) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Passwords do not match")));
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Registration Successful!")));
+
+      // Navigate to FoodListPage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => FoodListPage()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 25),
 
+                  // Name
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
@@ -64,6 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 20),
 
+                  // Email
                   TextField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -78,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 20),
 
+                  // Password
                   TextField(
                     controller: passwordController,
                     obscureText: true,
@@ -92,6 +125,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 20),
 
+                  // Confirm Password
                   TextField(
                     controller: confirmPasswordController,
                     obscureText: true,
@@ -106,10 +140,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 30),
 
+                  // Register Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: null,
+                      onPressed: register,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 5, 132, 20),
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -129,10 +164,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   SizedBox(height: 15),
 
-
+                  // Back to Login
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Go back to Login Page
                     },
                     child: Text("Already have an account? Login"),
                   ),
