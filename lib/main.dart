@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'register.dart';
 import 'foodlist.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://rouivltbxwjczjzhsjuc.supabase.co',
+    anonKey: 'sb_publishable_N5HhVHxSEVrfIWbYJ9gImA_ki_KNTQi',
+  );
+
   runApp(MaterialApp(home: LoginPage(), debugShowCheckedModeBanner: false));
 }
 
@@ -38,7 +46,20 @@ class _LoginBodyState extends State<LoginBody> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  void login() {
+  Future<void> saveData() async {
+    if (emailController.text.isEmpty) return;
+    if (passwordController.text.isEmpty) return;
+
+    await Supabase.instance.client.from('testDB').insert({
+      'email': emailController.text,
+      'password': passwordController.text,
+    });
+
+    emailController.clear();
+    passwordController.clear();
+  }
+
+  void login() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
@@ -46,12 +67,29 @@ class _LoginBodyState extends State<LoginBody> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Please fill in all fields")));
-    } else {
-      // Navigate to FoodListPage after login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => FoodListPage()),
-      );
+      return;
+    }
+
+    try {
+      final response = await Supabase.instance.client
+          .from('adduser')
+          .select()
+          .eq('email', email)
+          .eq('password', password)
+          .maybeSingle();
+
+      if (response != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => FoodListPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Invalid email or password")));
+      }
+    } catch (e) {
+      print("Login error: $e");
     }
   }
 
@@ -59,7 +97,6 @@ class _LoginBodyState extends State<LoginBody> {
   Widget build(BuildContext context) {
     return Center(
       child: SingleChildScrollView(
-        // Increased horizontal padding
         padding: const EdgeInsets.symmetric(horizontal: 500, vertical: 20),
         child: Card(
           elevation: 8,
@@ -73,16 +110,15 @@ class _LoginBodyState extends State<LoginBody> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Online Food City Login",
+                  "Login",
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: Colors.deepOrange,
+                    color: const Color.fromARGB(255, 12, 66, 110),
                   ),
                 ),
                 SizedBox(height: 25),
 
-                // Email
                 TextField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -97,7 +133,6 @@ class _LoginBodyState extends State<LoginBody> {
                 ),
                 SizedBox(height: 20),
 
-                // Password
                 TextField(
                   controller: passwordController,
                   obscureText: true,
@@ -112,13 +147,12 @@ class _LoginBodyState extends State<LoginBody> {
                 ),
                 SizedBox(height: 30),
 
-                // Login Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 5, 132, 20),
+                      backgroundColor: const Color.fromARGB(255, 12, 66, 110),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -136,7 +170,6 @@ class _LoginBodyState extends State<LoginBody> {
                 ),
                 SizedBox(height: 15),
 
-                // Register Text
                 TextButton(
                   onPressed: () {
                     Navigator.push(
