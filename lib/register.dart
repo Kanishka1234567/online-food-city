@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'foodlist.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,7 +15,27 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 
-  void register() {
+  Future<void> saveData() async {
+    //Empty check
+    if (nameController.text.isEmpty) return;
+    if (emailController.text.isEmpty) return;
+    if (passwordController.text.isEmpty) return;
+
+    //Data pass
+    await Supabase.instance.client.from('adduser').insert({
+      'name': nameController.text,
+      'email': emailController.text,
+      'password': passwordController.text,
+    });
+
+    nameController.clear();
+    emailController.clear();
+    passwordController.clear();
+  }
+
+  void register() async {
+    print("Button Clicked");
+
     String name = nameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
@@ -27,20 +48,34 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Please fill all fields")));
-    } else if (password != confirmPassword) {
+      return;
+    }
+
+    if (password != confirmPassword) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Passwords do not match")));
-    } else {
+      return;
+    }
+
+    try {
+      print("Saving to DB...");
+      await saveData();
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Registration Successful!")));
 
-      // Navigate to FoodListPage
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => FoodListPage()),
       );
+    } catch (e) {
+      print("ERROR: $e");
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
   }
 
@@ -76,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: Colors.deepOrange,
+                      color: const Color.fromARGB(255, 12, 66, 110),
                     ),
                   ),
                   SizedBox(height: 25),
@@ -146,7 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: ElevatedButton(
                       onPressed: register,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 5, 132, 20),
+                        backgroundColor: const Color.fromARGB(255, 12, 66, 110),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
