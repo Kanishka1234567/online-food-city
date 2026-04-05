@@ -50,7 +50,7 @@ class _LoginBodyState extends State<LoginBody> {
     if (emailController.text.isEmpty) return;
     if (passwordController.text.isEmpty) return;
 
-    await Supabase.instance.client.from('testDB').insert({
+    await Supabase.instance.client.from('adduser').insert({
       'email': emailController.text,
       'password': passwordController.text,
     });
